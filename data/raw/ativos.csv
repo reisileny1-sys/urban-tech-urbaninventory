@@ -1,0 +1,11 @@
+id,tipo,jurisdicao,manutencao_pendente,orgao
+A1,poste,Norte,0,O1
+A2,semaforo,Norte,1,O2
+A3,abrigo,Sul,1,O1
+A4,poste,Centro,0,O1
+A5,poste,Norte,1,O1
+A6,semaforo,Sul,0,O2
+A7,abrigo,Centro,1,O1
+A8,poste,Sul,0,O1
+A9,semaforo,Centro,1,O2
+A10,abrigo,,1,O1
