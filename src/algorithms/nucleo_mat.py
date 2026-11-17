@@ -17,6 +17,22 @@ def diferenca(conjunto_a, conjunto_b):
     return conjunto_a - conjunto_b
 
 
+def diferenca_simetrica(conjunto_a, conjunto_b):
+    return conjunto_a ^ conjunto_b
+
+
+def eh_vazio(conjunto):
+    return not conjunto
+
+
+def sao_disjuntos(conjunto_a, conjunto_b):
+    return conjunto_a.isdisjoint(conjunto_b)
+
+
+def eh_subconjunto(conjunto_a, conjunto_b):
+    return conjunto_a <= conjunto_b
+
+
 # RELAÇÕES MATEMÁTICAS
 
 def criar_relacao(elemento_a, elemento_b):
@@ -53,21 +69,42 @@ def validar_mapeamento(mapeamento, ativos, jurisdicoes):
 
     return True
 
+
+def composicao_indexada(relacao_ab, relacao_bc):
+    return {
+        (origem, destino)
+        for origem, intermediario in relacao_ab
+        for candidato, destino in relacao_bc
+        if intermediario == candidato
+    }
+
+
+def imagem(relacao, elemento):
+    return {destino for origem, destino in relacao if origem == elemento}
+
+
+def eh_funcao(relacao, dominio):
+    problemas = dominio - {origem for origem, _ in relacao}
+    return not problemas, problemas
+
 # MATRIZ DE PERTENCIMENTO
 
-def matriz_pertencimento(ativos, jurisdicoes, mapeamento):
+def matriz_pertencimento(mapeamento, ativos, jurisdicoes=None):
     # Cria uma matriz indicando a jurisdição de cada ativo.
-    matriz = []
+    if jurisdicoes is None:
+        jurisdicoes = list(mapeamento)
+        matriz = mapeamento
+    else:
+        matriz = {jurisdicao: set(ativos_da_jurisdicao)
+                  for jurisdicao, ativos_da_jurisdicao in mapeamento.items()}
 
-    for jurisdicao in jurisdicoes:
-        linha = []
+    return [
+        [1 if ativo in matriz.get(jurisdicao, set()) else 0 for ativo in ativos]
+        for jurisdicao in jurisdicoes
+    ]
 
-        for ativo in ativos:
-            if mapeamento.get(ativo) == jurisdicao:
-                linha.append(1)
-            else:
-                linha.append(0)
 
-        matriz.append(linha)
-
-    return matriz
+def formatar_matriz(matriz, *linhas):
+    if linhas:
+        matriz = (matriz,) + linhas
+    return "\n".join("  " + " ".join(map(str, linha)) for linha in matriz)

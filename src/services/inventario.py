@@ -1,10 +1,14 @@
 """Serviços do UrbanInventory: cadastros, relações, consultas, RBAC e relatório."""
 
-from src.algorithms import conjuntos as cj
+from src.algorithms import nucleo_mat as cj
+
 from src.models.entidades import Ativo, Jurisdicao, Local, Orgao, Papel, Usuario
 from src.utils.excecoes import (
-    AcessoNegadoError, AtivoSemJurisdicaoError, EntidadeDuplicadaError,
-    EntidadeInexistenteError, PermissaoInvalidaError,
+    AcessoNegadoError,
+    AtivoSemJurisdicaoError,
+    EntidadeDuplicadaError,
+    EntidadeInexistenteError,
+    PermissaoInvalidaError,
 )
 
 
@@ -29,9 +33,7 @@ class Inventario:
     @staticmethod
     def _garantir_novo(tabela, chave, entidade):
         if chave in tabela:
-            raise EntidadeDuplicadaError(
-                f"{entidade} '{chave}' já está cadastrado(a)."
-            )
+            raise EntidadeDuplicadaError(f"{entidade} '{chave}' já está cadastrado(a).")
 
     # Cadastros (RF01–RF05)
     def cadastrar_jurisdicao(self, nome):
@@ -47,8 +49,9 @@ class Inventario:
         self.locais[item.id] = item
         return item
 
-    def cadastrar_ativo(self, id_ativo, tipo, jurisdicao=None,
-                        manutencao_pendente=False, local=None):
+    def cadastrar_ativo(
+        self, id_ativo, tipo, jurisdicao=None, manutencao_pendente=False, local=None
+    ):
         if local is not None:
             jurisdicao = self._buscar(self.locais, local, "Local").jurisdicao
         if jurisdicao is not None:
@@ -75,16 +78,15 @@ class Inventario:
         perms = {p.strip().lower() for p in permissoes}
         invalidas = cj.diferenca(perms, self.permissoes)
         if invalidas:
-            raise PermissaoInvalidaError(
-                f"Permissões inválidas: {sorted(invalidas)}"
-            )
+            raise PermissaoInvalidaError(f"Permissões inválidas: {sorted(invalidas)}")
         item = Papel(nome, perms)
         self._garantir_novo(self.papeis, item.nome, "Papel")
         self.papeis[item.nome] = item
         return item
 
-    def cadastrar_usuario(self, id_usuario, nome, orgao=None, papeis=(),
-                          jurisdicao=None):
+    def cadastrar_usuario(
+        self, id_usuario, nome, orgao=None, papeis=(), jurisdicao=None
+    ):
         if orgao is not None:
             self._buscar(self.orgaos, orgao, "Órgão")
         for papel in papeis:
@@ -111,9 +113,7 @@ class Inventario:
         papel = self._buscar(self.papeis, nome_papel, "Papel")
         permissao = permissao.strip().lower()
         if permissao not in self.permissoes:
-            raise PermissaoInvalidaError(
-                f"Permissão '{permissao}' não existe."
-            )
+            raise PermissaoInvalidaError(f"Permissão '{permissao}' não existe.")
         papel.permissoes.add(permissao)
 
     def atribuir_papel(self, id_usuario, nome_papel):
@@ -122,7 +122,9 @@ class Inventario:
         usuario.papeis.add(nome_papel)
 
     def marcar_manutencao(self, id_ativo, pendente=True):
-        self._buscar(self.ativos, id_ativo, "Ativo").manutencao_pendente = bool(pendente)
+        self._buscar(self.ativos, id_ativo, "Ativo").manutencao_pendente = bool(
+            pendente
+        )
 
     # Consultas por conjuntos (RF07)
     def universo_ativos(self):
@@ -184,16 +186,12 @@ class Inventario:
 
     # Validações (RF09)
     def validar_mapeamento_ativo_jurisdicao(self):
-        return cj.eh_funcao(
-            self.relacao_ativo_jurisdicao(), self.universo_ativos()
-        )
+        return cj.eh_funcao(self.relacao_ativo_jurisdicao(), self.universo_ativos())
 
     def exigir_jurisdicao(self, id_ativo):
         ativo = self._buscar(self.ativos, id_ativo, "Ativo")
         if ativo.jurisdicao is None:
-            raise AtivoSemJurisdicaoError(
-                f"Ativo '{id_ativo}' não possui jurisdição."
-            )
+            raise AtivoSemJurisdicaoError(f"Ativo '{id_ativo}' não possui jurisdição.")
         return ativo.jurisdicao
 
     # Controle de acesso por papéis (RF10)
@@ -208,9 +206,7 @@ class Inventario:
     def tem_permissao(self, id_usuario, permissao):
         permissao = permissao.strip().lower()
         if permissao not in self.permissoes:
-            raise PermissaoInvalidaError(
-                f"Permissão '{permissao}' não existe."
-            )
+            raise PermissaoInvalidaError(f"Permissão '{permissao}' não existe.")
         return permissao in self.permissoes_do_usuario(id_usuario)
 
     def exigir_permissao(self, id_usuario, permissao):
@@ -240,9 +236,11 @@ class Inventario:
             "RELATÓRIO URBANINVENTORY",
             "=" * 50,
             f"Total de ativos: {len(self.ativos)}",
-            (f"Jurisdições: {len(self.jurisdicoes)} | "
-             f"Órgãos: {len(self.orgaos)} | Usuários: {len(self.usuarios)} | "
-             f"Papéis: {len(self.papeis)}"),
+            (
+                f"Jurisdições: {len(self.jurisdicoes)} | "
+                f"Órgãos: {len(self.orgaos)} | Usuários: {len(self.usuarios)} | "
+                f"Papéis: {len(self.papeis)}"
+            ),
             "",
             "Ativos por jurisdição:",
         ]
@@ -257,22 +255,28 @@ class Inventario:
         linhas.extend(["  Sem jurisdição: " + _fmt(self.ativos_sem_jurisdicao()), ""])
         ok, problemas = self.validar_mapeamento_ativo_jurisdicao()
         status = "SIM" if ok else f"NÃO (problemas: {_fmt(problemas)})"
-        linhas.extend([
-            f"Ativo → Jurisdição é função? {status}",
-            "",
-            "Matriz de pertencimento:",
-            cj.formatar_matriz(*self.matriz_jurisdicao_ativo()),
-        ])
+        linhas.extend(
+            [
+                f"Ativo → Jurisdição é função? {status}",
+                "",
+                "Matriz de pertencimento:",
+                cj.formatar_matriz(*self.matriz_jurisdicao_ativo()),
+            ]
+        )
         return "\n".join(linhas)
 
 
 def _ordem_natural(texto):
     """Ordena identificadores como A2 antes de A10."""
     prefixo = texto.rstrip("0123456789")
-    numero = texto[len(prefixo):]
+    numero = texto[len(prefixo) :]
     return prefixo, int(numero) if numero else 0
 
 
 def _fmt(conjunto):
     """Formata um conjunto ordenado; usa ∅ quando vazio."""
-    return "∅" if not conjunto else "{" + ", ".join(sorted(conjunto, key=_ordem_natural)) + "}"
+    return (
+        "∅"
+        if not conjunto
+        else "{" + ", ".join(sorted(conjunto, key=_ordem_natural)) + "}"
+    )

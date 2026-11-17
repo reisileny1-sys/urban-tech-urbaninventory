@@ -3,13 +3,18 @@
 Execute com:  python app.py
 """
 
-from src.algorithms import conjuntos as cj
+from src.algorithms import nucleo_mat as cj
 import os
+import sys
 
-from src.data.carregador import carregar_csv, exportar_ativos_csv
-from src.data.dados_exemplo import carregar_exemplo
+from src.data.manuseio_dados import carregar_csv, exportar_ativos_csv
+
+# from src.data.dados_exemplo import carregar_exemplo
 from src.services.inventario import _fmt
 from src.utils.excecoes import UrbanInventoryError
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 
 MENU = """
 ==================== URBANINVENTORY ====================
@@ -46,6 +51,7 @@ def lista(texto):
 
 
 # --------------------------------------------------------------------- ações
+
 
 def cadastrar_ativo(inv):
     """RF01 — Pede os dados e cadastra um ativo."""
@@ -98,10 +104,11 @@ def cadastrar_permissao(inv):
 def consultar_ativos(inv):
     """RF07 — Lista todos os ativos em forma de tabela."""
     print("\n  ID    TIPO       JURISDIÇÃO  MANUTENÇÃO")
-    for a in sorted(inv.ativos.values(),
-                    key=lambda x: (len(x.id), x.id)):
-        print(f"  {a.id:<5} {a.tipo:<10} {str(a.jurisdicao or '—'):<11} "
-              f"{'PENDENTE' if a.manutencao_pendente else 'ok'}")
+    for a in sorted(inv.ativos.values(), key=lambda x: (len(x.id), x.id)):
+        print(
+            f"  {a.id:<5} {a.tipo:<10} {str(a.jurisdicao or '—'):<11} "
+            f"{'PENDENTE' if a.manutencao_pendente else 'ok'}"
+        )
 
 
 def escolher_conjunto(inv, rotulo):
@@ -153,12 +160,12 @@ def consultar_conjuntos(inv):
 
 def consultar_relacoes(inv):
     """RF08 — Exibe as quatro relações e a composição Usuário→Ativo."""
+
     def mostrar(titulo, rel):
         """Imprime uma relação como lista de pares."""
         pares = sorted(rel)
         print(f"\n  {titulo}  (|R| = {len(pares)})")
-        print("   " + ", ".join(f"({x}, {y})" for x, y in pares) if pares
-              else "   ∅")
+        print("   " + ", ".join(f"({x}, {y})" for x, y in pares) if pares else "   ∅")
 
     mostrar("Usuário → pertence → Órgão", inv.relacao_usuario_orgao())
     mostrar("Órgão → administra → Ativo", inv.relacao_orgao_ativo())
@@ -173,8 +180,10 @@ def consultar_relacoes(inv):
 def validar_acesso(inv):
     """RF10 — Verifica se um usuário pode executar uma ação (RBAC)."""
     for u in inv.usuarios.values():
-        print(f"   {u.id} {u.nome:<6} papéis={_fmt(u.papeis)} "
-              f"permissões={_fmt(inv.permissoes_do_usuario(u.id))}")
+        print(
+            f"   {u.id} {u.nome:<6} papéis={_fmt(u.papeis)} "
+            f"permissões={_fmt(inv.permissoes_do_usuario(u.id))}"
+        )
     id_u = perguntar("\n  ID do usuário")
     acao = perguntar(f"  Ação ({', '.join(sorted(inv.permissoes))})")
     nome = inv.usuarios[id_u].nome if id_u in inv.usuarios else id_u
@@ -209,11 +218,19 @@ def exportar(inv):
 
 
 ACOES = {
-    "1": cadastrar_ativo, "2": cadastrar_local, "3": cadastrar_usuario,
-    "4": cadastrar_papel, "5": cadastrar_permissao, "6": consultar_ativos,
-    "7": consultar_conjuntos, "8": consultar_relacoes, "9": validar_acesso,
+    "1": cadastrar_ativo,
+    "2": cadastrar_local,
+    "3": cadastrar_usuario,
+    "4": cadastrar_papel,
+    "5": cadastrar_permissao,
+    "6": consultar_ativos,
+    "7": consultar_conjuntos,
+    "8": consultar_relacoes,
+    "9": validar_acesso,
     "10": lambda inv: print(inv.relatorio()),
-    "11": associar_jurisdicao, "12": mostrar_matriz, "13": exportar,
+    "11": associar_jurisdicao,
+    "12": mostrar_matriz,
+    "13": exportar,
 }
 
 
@@ -223,11 +240,12 @@ def main():
         inv = carregar_csv()
         origem = "data/raw/*.csv"
     except UrbanInventoryError as erro:
-        print(f"Aviso: {erro}. Usando dados embutidos.")
-        inv = carregar_exemplo()
-        origem = "dados_exemplo.py"
-    print(f"Dados carregados de {origem}: "
-          f"{len(inv.ativos)} ativos, {len(inv.usuarios)} usuários.")
+        print(f"Erro ao carregar os CSVs: {erro}")
+        return
+    print(
+        f"Dados carregados de {origem}: "
+        f"{len(inv.ativos)} ativos, {len(inv.usuarios)} usuários."
+    )
     while True:
         print(MENU)
         opcao = input("Escolha: ").strip()

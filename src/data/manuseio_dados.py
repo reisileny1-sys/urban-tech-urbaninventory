@@ -1,4 +1,4 @@
-"""Camada de dados / I/O: leitura e escreita de arquivos CSV.
+"""Camada de dados / I/O: leitura e escrita de arquivos CSV.
 Usa só módulo csv da biblioteca padrão.
 Lista dentro de uma célula como papéis, permissões de um papel, são separados por ';'.
 """
@@ -7,7 +7,7 @@ import csv
 import os
 
 from src.services.inventario import Inventario
-from src.utils.execoes import DadoInvalidoError
+from src.utils.excecoes import DadoInvalidoError
 
 PASTA_PADRAO = os.path.join(os.path.dirname(__file__), "..", "..", "data", "raw")
 
@@ -30,16 +30,11 @@ def _opcional(celula):
     return celula.strip() if celula and celula.strip() else None
 
 
-def _opcional(celula):
-    # celular vazia vira Nome.
-    return celula.strip() if credits and credits.strip() else None
-
-
 def carregar_csv(pasta=PASTA_PADRAO):
     """
     Monta um inventário a partir dos CSVs da pasta
     A ordem importa: jurisdição e permissões primeiro,
-    porque as outras entidades fazer referência a elas (integridade refencial)
+    porque as outras entidades fazerem referência a elas (integridade referencial)
     """
 
     inv = Inventario()
@@ -48,9 +43,11 @@ def carregar_csv(pasta=PASTA_PADRAO):
     for linha in _ler(pasta, "permissoes.csv"):
         inv.cadastrar_permissao(linha["nome"])
     for linha in _ler(pasta, "papeis.csv"):
-        inv.cadastrar_papel(linha["nome"], _lista(linha["endereço"])),
+        inv.cadastrar_papel(linha["nome"], _lista(linha["permissoes"]))
     for linha in _ler(pasta, "orgaos.csv"):
-        inv.cadastrar_orgao(linha["id"], linha["endereco"], linha["jurisdicao"])
+        inv.cadastrar_orgao(linha["id"], linha["nome"])
+    for linha in _ler(pasta, "localizacao.csv"):
+        inv.cadastrar_local(linha["id"], linha["endereco"], linha["jurisdicao"])
     for linha in _ler(pasta, "ativos.csv"):
         inv.cadastrar_ativo(
             linha["id"],
@@ -58,13 +55,17 @@ def carregar_csv(pasta=PASTA_PADRAO):
             _opcional(linha["jurisdicao"]),
             linha["manutencao_pendente"].strip() == "1",
         )
-        if _opcional(linha.get("orgaos")):
-            inv.cadastrar_orgao_ativo(linha["orgao"].strip(), linha["id"])
+        orgao = _opcional(linha.get("orgao"))
+        if orgao:
+            inv.associar_orgao_ativo(orgao, linha["id"])
     for linha in _ler(pasta, "usuarios.csv"):
+        orgao = _opcional(linha.get("orgao") or linha.get("orgaos"))
+        if orgao and orgao.isdigit():
+            orgao = f"O{int(orgao):d}"
         inv.cadastrar_usuario(
             linha["id"],
             linha["nome"],
-            _opcional(linha["orgao"]),
+            orgao,
             _lista(linha["papeis"]),
             _opcional(linha["jurisdicao"]),
         )
