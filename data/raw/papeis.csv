@@ -1,0 +1,4 @@
+nome,permissoes
+Administrador,consultar;criar;atualizar;excluir
+Fiscal,consultar;atualizar
+Visitante,consultar
