@@ -66,4 +66,8 @@ def test_validar_mapeamento_jurisdicao_invalida():
 
 # Teste 8: matriz com listas vazias
 def test_matriz_pertencimento_vazia():
-    assert matriz_pertencimento([], [], {}) == []
+    linhas, colunas, matriz = matriz_pertencimento({}, [])
+
+    assert linhas == []
+    assert colunas == []
+    assert matriz == []
