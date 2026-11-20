@@ -30,6 +30,16 @@ def eh_subconjunto(a, b):
 
 # RELAÇÕES MATEMÁTICAS
 
+def composicao(relacao_a, relacao_b):
+    """Compõe duas relações binárias comparando todos os pares."""
+    return {
+        (origem, destino)
+        for origem, intermediario in relacao_a
+        for intermediario_b, destino in relacao_b
+        if intermediario == intermediario_b
+    }
+
+
 def composicao_indexada(relacao_a, relacao_b):
     """Compõe duas relações binárias A→B e B→C."""
     indice = {}

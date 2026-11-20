@@ -331,7 +331,7 @@ A ideia da separação em camadas é deixar os algoritmos matemáticos nessa pas
 
 Para verificar as funções, utilizamos testes automatizados com `pytest`, organizados na pasta `tests/`. Foram testadas operações de conjuntos, relações, validações de função e de mapeamento, composição de relações e geração e formatação de matrizes. Também foram incluídos casos em que não existe associação ou algum dado está faltando.
 
-Na execução dos testes, **26 testes passaram**. Isso confirma os resultados dos casos testados, mas não substitui a verificação de toda a aplicação quando os módulos estiverem integrados.
+Na execução da suíte completa com `pytest`, **56 testes passaram**. Isso confirma os resultados dos casos testados, mas não substitui a verificação de toda a aplicação quando os módulos estiverem integrados.
 
 Os detalhes de implementação ficam no documento `05_algoritmos.md`. A análise Big-O, as medições de desempenho e os gráficos são tratados separadamente na documentação de complexidade e nos relatórios do projeto.
 

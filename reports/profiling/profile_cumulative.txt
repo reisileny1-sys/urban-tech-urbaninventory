@@ -1,0 +1,25 @@
+cProfile — carga típica com n = 50000 ativos
+
+         750029 function calls in 0.922 seconds
+
+   Ordered by: cumulative time
+   List reduced from 34 to 15 due to restriction <15>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.005    0.005    0.510    0.510 inventario.py:470(relatorio)
+        2    0.025    0.012    0.456    0.228 inventario.py:370(validar_mapeamento_ativo_jurisdicao)
+        2    0.244    0.122    0.397    0.198 nucleo_mat.py:110(eh_funcao)
+        2    0.000    0.000    0.289    0.144 inventario.py:459(matriz_jurisdicao_ativo)
+        9    0.053    0.006    0.234    0.026 {built-in method builtins.sorted}
+   116757    0.119    0.000    0.181    0.000 inventario.py:512(_ordem_natural)
+       20    0.082    0.004    0.082    0.004 inventario.py:258(ativos_da_jurisdicao)
+        2    0.065    0.033    0.065    0.033 nucleo_mat.py:139(matriz_pertencimento)
+   100000    0.058    0.000    0.058    0.000 {method 'get' of 'dict' objects}
+        5    0.000    0.000    0.055    0.011 inventario.py:300(consulta_norte_pendente)
+    97964    0.053    0.000    0.053    0.000 {method 'setdefault' of 'dict' objects}
+        7    0.000    0.000    0.051    0.007 inventario.py:525(_fmt)
+   116757    0.043    0.000    0.043    0.000 {method 'rstrip' of 'str' objects}
+   216779    0.037    0.000    0.037    0.000 {built-in method builtins.len}
+       15    0.030    0.002    0.030    0.002 {method 'join' of 'str' objects}
+
+

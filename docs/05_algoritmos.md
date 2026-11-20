@@ -266,7 +266,7 @@ Além dos exemplos em que tudo funciona corretamente, testamos situações como:
 - Consulta de imagem que não existe na relação.
 - Matriz vazia.
 
-Na execução mais recente dos testes, **26 testes passaram**. Esse resultado mostra que os casos testados funcionaram como esperado, mas não significa que todos os caminhos possíveis do código já tenham sido testados.
+Na execução mais recente da suíte completa com `pytest`, **56 testes passaram**. Esse resultado mostra que os casos testados funcionaram como esperado, mas não significa que todos os caminhos possíveis do código já tenham sido testados.
 
 Para executar os testes pelo terminal, utilizamos:
 
